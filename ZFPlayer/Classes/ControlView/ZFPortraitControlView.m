@@ -48,6 +48,8 @@
 @property (nonatomic, strong) UILabel *totalTimeLabel;
 /// 全屏按钮
 @property (nonatomic, strong) UIButton *fullScreenBtn;
+/// 左下角播放暂停按钮
+@property (nonatomic, strong) UIButton *smallPlayPauseBtn;
 
 @property (nonatomic, assign) BOOL isShow;
 
@@ -62,6 +64,7 @@
         [self addSubview:self.bottomToolView];
         [self addSubview:self.playOrPauseBtn];
         [self.topToolView addSubview:self.titleLabel];
+        [self.bottomToolView addSubview:self.smallPlayPauseBtn];
         [self.bottomToolView addSubview:self.currentTimeLabel];
         [self.bottomToolView addSubview:self.slider];
         [self.bottomToolView addSubview:self.totalTimeLabel];
@@ -113,6 +116,12 @@
     self.playOrPauseBtn.center = self.center;
     
     min_x = min_margin;
+    min_w = 16;
+    min_h = 16;
+    min_y = (self.bottomToolView.zf_height - min_h)/2;
+    self.smallPlayPauseBtn.frame = CGRectMake(min_x, min_y, min_w, min_h);
+    
+    min_x = self.smallPlayPauseBtn.zf_width + 8;
     min_w = 62;
     min_h = 28;
     min_y = (self.bottomToolView.zf_height - min_h)/2;
@@ -152,6 +161,7 @@
 
 - (void)makeSubViewsAction {
     [self.playOrPauseBtn addTarget:self action:@selector(playPauseButtonClickAction:) forControlEvents:UIControlEventTouchUpInside];
+    [self.smallPlayPauseBtn addTarget:self action:@selector(playPauseButtonClickAction:) forControlEvents:UIControlEventTouchUpInside];
     [self.fullScreenBtn addTarget:self action:@selector(fullScreenButtonClickAction:) forControlEvents:UIControlEventTouchUpInside];
 }
 
@@ -167,12 +177,14 @@
 
 /// 根据当前播放状态取反
 - (void)playOrPause {
+    self.smallPlayPauseBtn.selected = !self.smallPlayPauseBtn.isSelected;
     self.playOrPauseBtn.selected = !self.playOrPauseBtn.isSelected;
     self.playOrPauseBtn.isSelected? [self.player.currentPlayerManager play]: [self.player.currentPlayerManager pause];
 }
 
 - (void)playBtnSelectedState:(BOOL)selected {
     self.playOrPauseBtn.selected = selected;
+    self.smallPlayPauseBtn.selected = selected;
 }
 
 #pragma mark - ZFSliderViewDelegate
@@ -226,6 +238,7 @@
     self.bottomToolView.alpha        = 1;
     self.slider.value                = 0;
     self.slider.bufferValue          = 0;
+    self.slider.limitValue = 0.3;
     self.currentTimeLabel.text       = @"00:00";
     self.totalTimeLabel.text         = @"00:00";
     self.backgroundColor             = [UIColor clearColor];
@@ -338,7 +351,7 @@
     if (!_playOrPauseBtn) {
         _playOrPauseBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_playOrPauseBtn setImage:ZFPlayer_Image(@"new_allPlay_44x44_") forState:UIControlStateNormal];
-        [_playOrPauseBtn setImage:ZFPlayer_Image(@"new_allPause_44x44_") forState:UIControlStateSelected];
+        [_playOrPauseBtn setImage:[UIImage new] forState:UIControlStateSelected];
     }
     return _playOrPauseBtn;
 }
@@ -382,6 +395,19 @@
         [_fullScreenBtn setImage:ZFPlayer_Image(@"ZFPlayer_fullscreen") forState:UIControlStateNormal];
     }
     return _fullScreenBtn;
+}
+
+- (UIButton *)smallPlayPauseBtn {
+    if (_smallPlayPauseBtn) {
+        return _smallPlayPauseBtn;
+    }
+    _smallPlayPauseBtn = ({
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [btn setImage:ZFPlayer_Image(@"ZFPlayer_play") forState:UIControlStateNormal];
+        [btn setImage:ZFPlayer_Image(@"ZFPlayer_pause") forState:UIControlStateSelected];
+        btn;
+    });
+    return _smallPlayPauseBtn;
 }
 
 @end

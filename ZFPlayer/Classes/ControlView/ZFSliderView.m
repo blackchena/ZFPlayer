@@ -62,6 +62,8 @@ static const CGFloat kAnimate = 0.3;
 
 @property (nonatomic, strong) UITapGestureRecognizer *tapGesture;
 
+@property (nonatomic) UIView *limitDotView;
+
 @end
 
 @implementation ZFSliderView
@@ -70,6 +72,7 @@ static const CGFloat kAnimate = 0.3;
     if (self = [super initWithFrame:frame]) {
         self.allowTapped = YES;
         self.animate = YES;
+        _limitDotRadius = 5;
         [self addSubViews];
     }
     return self;
@@ -79,6 +82,7 @@ static const CGFloat kAnimate = 0.3;
     [super awakeFromNib];
     self.allowTapped = YES;
     self.animate = YES;
+    _limitDotRadius = 5;
     [self addSubViews];
 }
 
@@ -108,6 +112,19 @@ static const CGFloat kAnimate = 0.3;
     
     min_x = 0;
     min_y = 0;
+    if (self.limitValue <= 0) {
+        self.limitDotView.hidden = YES;
+    } else {
+        min_w = self.limitDotRadius;
+        min_h = self.limitDotRadius;
+        self.limitDotView.frame = CGRectMake(min_x, min_y, min_w, min_h);
+        self.limitDotView.zf_centerX = self.bgProgressView.zf_width * self.limitValue;
+        self.limitDotView.layer.cornerRadius = min_w / 2.0;
+        self.limitDotView.hidden = NO;
+    }
+
+    min_x = 0;
+    min_y = 0;
     if (self.sliderBtn.hidden) {
         min_w = self.bgProgressView.zf_width * self.value;
     } else {
@@ -132,6 +149,7 @@ static const CGFloat kAnimate = 0.3;
     self.bufferProgressView.zf_centerY = min_view_h * 0.5;
     self.sliderProgressView.zf_centerY = min_view_h * 0.5;
     self.sliderBtn.zf_centerY          = min_view_h * 0.5;
+    self.limitDotView.zf_centerY = min_view_h * 0.5;
 }
 
 /**
@@ -143,6 +161,7 @@ static const CGFloat kAnimate = 0.3;
     self.backgroundColor = [UIColor clearColor];
     [self addSubview:self.bgProgressView];
     [self addSubview:self.bufferProgressView];
+    [self addSubview:self.limitDotView];
     [self addSubview:self.sliderProgressView];
     [self addSubview:self.sliderBtn];
     [self addSubview:self.loadingBarView];
@@ -221,6 +240,11 @@ static const CGFloat kAnimate = 0.3;
     bufferValue = MIN(1.0, bufferValue);
     _bufferValue = bufferValue;
     self.bufferProgressView.zf_width = self.bgProgressView.zf_width * bufferValue;
+}
+- (void)setLimitValue:(float)limitValue {
+    if (isnan(limitValue)) return;
+    limitValue = MIN(1.0, limitValue);
+    _limitValue = limitValue;
 }
 
 - (void)setAllowTapped:(BOOL)allowTapped {
@@ -421,6 +445,19 @@ static const CGFloat kAnimate = 0.3;
         _loadingBarView.hidden = YES;
     }
     return _loadingBarView;
+}
+
+- (UIView *)limitDotView {
+    if (_limitDotView) {
+        return _limitDotView;
+    }
+    _limitDotView = ({
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 4)];
+        view.backgroundColor = [UIColor whiteColor];
+        view.hidden = YES;
+        view;
+    });
+    return _limitDotView;
 }
 
 @end

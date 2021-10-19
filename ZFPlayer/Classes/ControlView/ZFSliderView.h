@@ -76,6 +76,9 @@
 /** 缓存进度 */
 @property (nonatomic, assign) float bufferValue;
 
+/** 限制进度 */
+@property (nonatomic, assign) float limitValue;
+
 /** 是否允许点击，默认是YES */
 @property (nonatomic, assign) BOOL allowTapped;
 
@@ -84,6 +87,9 @@
 
 /** 设置滑杆的高度 */
 @property (nonatomic, assign) CGFloat sliderHeight;
+
+/** 限制原点半径 */
+@property (nonatomic, assign) CGFloat limitDotRadius;
 
 /** 设置滑杆的圆角 */
 @property (nonatomic, assign) CGFloat sliderRadius;

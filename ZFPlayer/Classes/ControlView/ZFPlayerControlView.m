@@ -92,6 +92,7 @@
         self.horizontalPanShowControlView = YES;
         self.autoFadeTimeInterval = 0.25;
         self.autoHiddenTimeInterval = 2.5;
+        _needAutoHide = NO;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(volumeChanged:)
                                                      name:@"AVSystemController_SystemVolumeDidChangeNotification"
@@ -185,6 +186,9 @@
 }
 
 - (void)autoFadeOutControlView {
+    if (!_needAutoHide) {
+        return;
+    }
     self.controlViewAppeared = YES;
     [self cancelAutoFadeOutControlView];
     @zf_weakify(self)
@@ -436,7 +440,7 @@
 
 /// 准备播放
 - (void)videoPlayer:(ZFPlayerController *)videoPlayer prepareToPlay:(NSURL *)assetURL {
-    [self hideControlViewWithAnimated:NO];
+    [self showControlViewWithAnimated:NO];
 }
 
 /// 播放状态改变
