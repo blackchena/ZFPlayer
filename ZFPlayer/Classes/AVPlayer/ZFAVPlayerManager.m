@@ -120,12 +120,14 @@ static NSString *const kPresentationSize         = @"presentationSize";
 @synthesize scalingMode                    = _scalingMode;
 @synthesize playerPlayFailed               = _playerPlayFailed;
 @synthesize presentationSizeChanged        = _presentationSizeChanged;
+@synthesize limitProgress = _limitProgress;
 
 - (instancetype)init {
     self = [super init];
     if (self) {
         _scalingMode = ZFPlayerScalingModeAspectFit;
         _shouldAutoPlay = YES;
+        _limitProgress = 1;
     }
     return self;
 }
@@ -353,7 +355,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
         NSArray *loadedRanges = self.playerItem.seekableTimeRanges;
         if (self.isPlaying && self.loadState == ZFPlayerLoadStateStalled) self.player.rate = self.rate;
         if (loadedRanges.count > 0) {
-            if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, self.currentTime, self.totalTime);
+            [self playTimeDidChanged:self.currentTime duration:self.totalTime];
         }
     }];
     
@@ -390,7 +392,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
                 self.player.muted = self.muted;
                 NSArray *loadedRanges = self.playerItem.seekableTimeRanges;
                 if (loadedRanges.count > 0) {
-                    if (self.playerPlayTimeChanged) self.playerPlayTimeChanged(self, self.currentTime, self.totalTime);
+                    [self playTimeDidChanged:self.currentTime duration:self.totalTime];
                 }
             } else if (self.player.currentItem.status == AVPlayerItemStatusFailed) {
                 self.playState = ZFPlayerPlayStatePlayFailed;
@@ -411,9 +413,7 @@ static NSString *const kPresentationSize         = @"presentationSize";
                 if (self.isPlaying) [self.player play];
             }
         } else if ([keyPath isEqualToString:kLoadedTimeRanges]) {
-            NSTimeInterval bufferTime = [self availableDuration];
-            self->_bufferTime = bufferTime;
-            if (self.playerBufferTimeChanged) self.playerBufferTimeChanged(self, bufferTime);
+            [self playerBufferTimeDidChanged];
         } else if ([keyPath isEqualToString:kPresentationSize]) {
             self.presentationSize = self.playerItem.presentationSize;
         } else {
@@ -520,6 +520,33 @@ static NSString *const kPresentationSize         = @"presentationSize";
     if (self.presentationSizeChanged) {
         self.presentationSizeChanged(self, self.presentationSize);
     }
+}
+
+- (void)playTimeDidChanged:(NSTimeInterval)currentTime duration:(NSTimeInterval)duration {
+    if (self.playerPlayTimeChanged) { self.playerPlayTimeChanged(self, self.currentTime, self.totalTime);
+    }
+    if (self.limitProgress >= 1) {
+        return;
+    }
+    if (self.currentTime / self.totalTime >= self.limitProgress) {
+        [self pause];
+    }
+}
+
+- (void)playerBufferTimeDidChanged {
+    NSTimeInterval bufferTime = [self availableDuration];
+    
+    if (bufferTime / self.totalTime >= self.limitProgress) {
+        return;
+    }
+    self->_bufferTime = bufferTime;
+    if (self.playerBufferTimeChanged) {
+        self.playerBufferTimeChanged(self, bufferTime);
+    }
+}
+
+- (CGFloat)currentProgress {
+    return self.currentTime / self.totalTime;
 }
 
 @end

@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Playback speed,0.5...2
 @property (nonatomic) float rate;
 
+@property (nonatomic) CGFloat limitProgress;
 /// The player current play time.
 @property (nonatomic, readonly) NSTimeInterval currentTime;
 

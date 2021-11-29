@@ -112,7 +112,7 @@ static const CGFloat kAnimate = 0.3;
     
     min_x = 0;
     min_y = 0;
-    if (self.limitValue <= 0) {
+    if (self.limitValue <= 0 || self.limitValue >= 1) {
         self.limitDotView.hidden = YES;
     } else {
         min_w = self.limitDotRadius;
@@ -245,6 +245,11 @@ static const CGFloat kAnimate = 0.3;
     if (isnan(limitValue)) return;
     limitValue = MIN(1.0, limitValue);
     _limitValue = limitValue;
+    if (_limitValue >= 1.0) {
+        self.limitDotView.hidden = YES;
+    } else {
+        self.limitDotView.hidden = NO;
+    }
 }
 
 - (void)setAllowTapped:(BOOL)allowTapped {
@@ -380,6 +385,9 @@ static const CGFloat kAnimate = 0.3;
     // value的值需在0-1之间
     value = value >= 1.0 ? 1.0 : value <= 0.0 ? 0.0 : value;
     if (self.value == value) return;
+    if (value > self.limitValue) {
+        return;
+    }
     self.isForward = self.value < value;
     self.value = value;
     if ([self.delegate respondsToSelector:@selector(sliderValueChanged:)]) {
