@@ -91,6 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// The player load state.
 @property (nonatomic, readonly) ZFPlayerLoadState loadState;
 
+@property (nonatomic, copy, nullable) void(^playerDidBeyondLimitProgress)(id<ZFPlayerMediaPlayback> asset, BOOL isBeyond);
 ///------------------------------------
 /// If you don't appoint the controlView, you can called the following blocks.
 /// If you appoint the controlView, The following block cannot be called outside, only for `ZFPlayerController` calls.
