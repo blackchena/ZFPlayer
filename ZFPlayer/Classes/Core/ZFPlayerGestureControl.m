@@ -64,7 +64,7 @@
         CGFloat y = fabs(translation.y);
         if (x < y && self.disablePanMovingDirection & ZFPlayerDisablePanMovingDirectionVertical) { /// up and down moving direction.
             return NO;
-        } else if (x > y && self.disablePanMovingDirection & ZFPlayerDisablePanMovingDirectionHorizontal) { /// left and right moving direction.
+        } else if (x >= y && self.disablePanMovingDirection & ZFPlayerDisablePanMovingDirectionHorizontal) { /// left and right moving direction.
             return NO;
         }
     }
